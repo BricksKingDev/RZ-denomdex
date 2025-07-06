@@ -163,7 +163,7 @@ class SpawnManager(BaseSpawnManager):
         if not guild.member_count:
             return False
         elif guild.member_count < 5:
-            time_multiplier = 0.1
+            time_multiplier = .1
         elif guild.member_count < 100:
             time_multiplier = 0.8
         elif guild.member_count < 1000:
