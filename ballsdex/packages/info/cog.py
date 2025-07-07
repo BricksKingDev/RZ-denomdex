@@ -3,6 +3,7 @@ import random
 import sys
 from datetime import datetime
 from typing import TYPE_CHECKING
+import json
 
 import discord
 from discord import app_commands
@@ -37,6 +38,34 @@ def mention_app_command(app_command: app_commands.Command | app_commands.Group) 
         else:
             return f"`/{app_command.name}`"
 
+class ChangelogView(discord.ui.View):
+    def __init__(self, entries):
+        super().__init__(timeout=60)
+        self.entries = entries
+        self.index = 0
+
+    def format_embed(self):
+        entry = self.entries[self.index]
+        embed = discord.Embed(
+            title=f"Changelog {entry['version']}",
+            description=f"Date: {entry['date']}",
+            color=discord.Color.blurple()
+        )
+        embed.add_field(name="Changes", value="\n".join(f"• {c}" for c in entry["changes"]), inline=False)
+        embed.set_footer(text=f"Page {self.index + 1} of {len(self.entries)}")
+        return embed
+
+    @discord.ui.button(label="←", style=discord.ButtonStyle.primary)
+    async def previous(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if self.index > 0:
+            self.index -= 1
+            await interaction.response.edit_message(embed=self.format_embed(), view=self)
+
+    @discord.ui.button(label="→", style=discord.ButtonStyle.primary)
+    async def next(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if self.index < len(self.entries) - 1:
+            self.index += 1
+            await interaction.response.edit_message(embed=self.format_embed(), view=self)
 
 class Info(commands.Cog):
     """
@@ -45,7 +74,8 @@ class Info(commands.Cog):
 
     def __init__(self, bot: "BallsDexBot"):
         self.bot = bot
-
+        with open("changelog.json", "r") as f:
+            self.changelog_entries = json.load(f)
     async def _get_10_balls_emojis(self) -> list[discord.Emoji]:
         balls: list[Ball] = random.choices(
             [x for x in countryballs.values() if x.enabled], k=min(10, len(countryballs))
@@ -58,11 +88,13 @@ class Info(commands.Cog):
 
         return emotes
 
+    
     @app_commands.command()
     async def about(self, interaction: discord.Interaction["BallsDexBot"]):
         """
         Get information about this bot.
         """
+        await interaction.response.defer()
         embed = discord.Embed(
             title=f"{settings.bot_name} Discord bot", color=discord.Colour.blurple()
         )
@@ -144,7 +176,8 @@ class Info(commands.Cog):
             text=f"Python {v.major}.{v.minor}.{v.micro} • discord.py {discord.__version__}"
         )
 
-        await interaction.response.send_message(embed=embed, view=LicenseInfo())
+        await interaction.followup.send(embed=embed, view=LicenseInfo())
+
 
     @app_commands.command()
     async def help(self, interaction: discord.Interaction["BallsDexBot"]):
@@ -177,3 +210,9 @@ class Info(commands.Cog):
                 )
 
         await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="changelog", description="Browse the changelog.")
+    async def changelog(self, interaction: discord.Interaction):
+        view = ChangelogView(self.changelog_entries)
+        await interaction.response.send_message(embed=view.format_embed(), view=view, ephemeral=True)
+

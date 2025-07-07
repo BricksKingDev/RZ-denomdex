@@ -75,9 +75,9 @@ class Settings:
     shard_count: int | None = None
     prefix: str = "b."
 
-    collectible_name: str = "countryball"
-    plural_collectible_name: str = "countryballs"
-    bot_name: str = "BallsDex"
+    collectible_name: str = "denomball"
+    plural_collectible_name: str = "denomballs"
+    bot_name: str = "DenomDex"
     players_group_cog_name: str = "balls"
     favorited_collectible_emoji: str = "❤️"
 

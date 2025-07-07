@@ -40,4 +40,5 @@ admin_panel/admin_panel/settings/production.py
 
 
 # personal scripts
-export.sh
+startbot.sh
+startadmin_panel.sh
