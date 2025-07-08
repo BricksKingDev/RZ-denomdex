@@ -215,6 +215,9 @@ class Info(commands.Cog):
     @app_commands.command(name="changelog", description="Browse the changelog.")
     async def changelog(self, interaction: discord.Interaction):
         await interaction.response.defer()
+        if interaction.user.id != self.author_id:
+            await interaction.response.send_message("You cannot use this button.", ephemeral=True)
+            return
         view = ChangelogView(self.changelog_entries)
         await interaction.followup.send(embed=view.format_embed(), view=view, ephemeral=True)
 
