@@ -1,5 +1,13 @@
 [
   {
+    "version": "v1.0.1",
+    "date": "2025-07-07",
+    "changes": [
+      "Added 8 new denomballs",
+      "Changed Eastern Orthodox abilities and rarity"
+    ]
+  },
+  {
     "version": "v1.0.0",
     "date": "2025-07-06",
     "changes": [

@@ -184,6 +184,7 @@ class Info(commands.Cog):
         """
         Show the list of commands from the bot.
         """
+        await interaction.response.defer()
         assert self.bot.user
         embed = discord.Embed(
             title=f"{settings.bot_name} Discord bot - help menu", color=discord.Colour.blurple()
@@ -209,10 +210,11 @@ class Info(commands.Cog):
                     name=cog.qualified_name if i == 0 else "\u200b", value=page, inline=False
                 )
 
-        await interaction.response.send_message(embed=embed)
+        await interaction.followup.send(embed=embed)
 
     @app_commands.command(name="changelog", description="Browse the changelog.")
     async def changelog(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         view = ChangelogView(self.changelog_entries)
-        await interaction.response.send_message(embed=view.format_embed(), view=view, ephemeral=True)
+        await interaction.followup.send(embed=view.format_embed(), view=view, ephemeral=True)
 
